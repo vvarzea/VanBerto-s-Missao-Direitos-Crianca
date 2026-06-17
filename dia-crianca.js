@@ -770,58 +770,68 @@ window.addEventListener("DOMContentLoaded", () => {
     },
     {
       name: "Nível 7 — O Direito à Proteção",
-      theme:6, quizTheme:"protecao", worldW:3200,
-      spawn:{x:120,y:464}, doorX:2960,
-      // ══ MURALHA — escalar uma fortaleza ══
-      // Três "torres" separadas por fossos. Cada torre tem 3 andares.
-      // Tens de entrar pela base, subir, e saltar para a próxima torre.
-      // Os jumpers estão nos topos — protegem os melhores itens.
+      theme:6, quizTheme:"protecao", worldW:3400,
+      spawn:{x:120,y:464}, doorX:3160,
+      // ══ MURALHA — três fortalezas largas com escadas em ziguezague ══
+      // Cada torre tem degraus deslocados em X (não em pilha) para o jogador
+      // subir em ziguezague, como uma escadaria. Passagens ≥160px entre torres.
+      // Topos a y:220-320 — sempre visíveis no ecrã.
       platforms:[
-        {x:120,y:520,w:380,h:28},          // base arranque
+        {x:120,y:520,w:360,h:28},          // base arranque
 
-        // Torre A
-        {x:680,y:440,w:160,h:22},          // base torre A
-        {x:680,y:340,w:160,h:22},          // meio torre A
-        {x:680,y:240,w:160,h:22},          // topo torre A
+        // ── Torre A (x: 550–880) ──────────────────────────────────────
+        {x:550,y:440,w:180,h:22},          // degrau 1 — entrada
+        {x:720,y:360,w:180,h:22},          // degrau 2 — deslocado à direita
+        {x:580,y:290,w:180,h:22},          // degrau 3 — volta à esquerda
+        {x:740,y:220,w:180,h:22},          // topo torre A — amplo
 
-        // Passagem entre torres A→B (plataforma estreita no ar)
-        {x:950,y:300,w:100,h:22},
+        // ── Passagem A→B ──────────────────────────────────────────────
+        // Plataforma larga de transição — fácil de alcançar do topo A
+        {x:1020,y:270,w:170,h:22},
 
-        // Torre B
-        {x:1220,y:380,w:160,h:22},         // base torre B
-        {x:1220,y:280,w:160,h:22},         // meio torre B
-        {x:1220,y:180,w:160,h:22},         // topo torre B — mais alto
+        // ── Torre B (x: 1240–1580) ────────────────────────────────────
+        {x:1240,y:400,w:190,h:22},         // base torre B — entrada lateral
+        {x:1400,y:320,w:180,h:22},         // degrau 2
+        {x:1250,y:250,w:180,h:22},         // degrau 3 — troca de lado
+        {x:1430,y:180,w:200,h:22},         // topo torre B (mais difícil, mais recompensa)
 
-        // Passagem B→C
-        {x:1500,y:240,w:100,h:22},
+        // ── Passagem B→C (duas plataformas — ritmo diferente) ─────────
+        {x:1740,y:220,w:160,h:22},
+        {x:1940,y:290,w:160,h:22},
 
-        // Torre C
-        {x:1780,y:340,w:160,h:22},
-        {x:1780,y:240,w:160,h:22},
-        {x:1780,y:140,w:160,h:22},         // topo absoluto
+        // ── Torre C (x: 2160–2480) ────────────────────────────────────
+        {x:2160,y:390,w:190,h:22},         // base torre C
+        {x:2340,y:310,w:180,h:22},         // meio
+        {x:2180,y:240,w:180,h:22},         // degrau alto
+        {x:2360,y:180,w:200,h:22},         // topo torre C — mais baixo que B (surpresa!)
 
-        // Descida para porta
-        {x:2100,y:260,w:130,h:22},
-        {x:2300,y:360,w:130,h:22},
-        {x:2500,y:440,w:130,h:22},
-        {x:3000,y:520,w:600,h:28},
+        // ── Descida para a porta ──────────────────────────────────────
+        {x:2640,y:280,w:150,h:22},
+        {x:2840,y:380,w:150,h:22},
+        {x:2980,y:460,w:130,h:22},
+        {x:3160,y:520,w:600,h:28},
       ],
       items:[
-        {x:680,y:390,kind:"balao"},         // base torre A — fácil
-        {x:680,y:190,kind:"estrela"},       // topo torre A
-        {x:1220,y:130,kind:"medalha"},      // topo torre B — difícil
-        {x:1780,y:90,kind:"duplosalto"},    // topo torre C — máximo
-        {x:2300,y:310,kind:"brinquedo"},
-        {x:120,y:470,kind:"heart"},
+        {x:120,y:470,kind:"heart"},         // coração no arranque
+        {x:740,y:170,kind:"balao"},         // topo torre A — 1.º prémio
+        {x:1020,y:220,kind:"chupa"},        // passagem A→B
+        {x:1430,y:130,kind:"estrela"},      // topo torre B — Star Power!
+        {x:1940,y:240,kind:"brinquedo"},    // passagem B→C
+        {x:2360,y:130,kind:"duplosalto"},   // topo torre C — duplo salto
+        {x:2840,y:330,kind:"medalha"},
       ],
       malwares:[
-        {x:680,y:412,vx:0,pattern:"mini"},       // guarda base torre A
-        {x:680,y:212,vx:0,pattern:"patrol"},     // topo torre A
-        {x:1220,y:252,vx:0,pattern:"patrol"},    // meio torre B
-        {x:1220,y:152,vx:0,pattern:"jumper"},    // topo torre B — primeiro jumper em torre
-        {x:1780,y:112,vx:0,pattern:"jumper"},    // topo torre C
+        {x:550,y:412,vx:0,pattern:"mini"},       // guarda entrada torre A
+        {x:740,y:192,vx:80,pattern:"patrol"},    // patrulha topo A
+        {x:1400,y:292,vx:0,pattern:"mini"},      // meio torre B
+        {x:1430,y:152,vx:0,pattern:"jumper"},    // topo torre B — jumper!
+        {x:2340,y:282,vx:90,pattern:"patrol"},   // meio torre C
+        {x:2360,y:152,vx:0,pattern:"jumper"},    // topo torre C
       ],
-      secrets:[{x:950,y:248,kind:"estrela",points:25}],
+      trampolines:[
+        {x:960,y:510},   // ajuda a entrar na torre B a partir do chão (alternativa)
+      ],
+      secrets:[{x:1740,y:170,kind:"estrela",points:25}],
     },
     {
       name: "Nível 8 — O Direito à Participação",
@@ -989,60 +999,75 @@ window.addEventListener("DOMContentLoaded", () => {
       name: "Nível 11 — O Direito à Identidade",
       theme:10, quizTheme:"identidade", worldW:3600,
       spawn:{x:120,y:464}, doorX:3380,
-      // ══ ESPELHO — dois caminhos idênticos que nunca se cruzam ══
-      // O nível tem dois percursos paralelos (cima e baixo) que correm
-      // em simultâneo da esquerda para a direita sem se intersectarem.
-      // Cada percurso tem os seus próprios itens e vilões.
-      // O jogador escolhe um e mantém-se nele — como a identidade.
+      // ══ ESPELHO — dois caminhos com personalidade própria ══
+      // Percurso CIMA: montanha-russa — sobe alto, desce fundo, picos imprevisíveis.
+      // Percurso BAIXO: ritmo sincopado — vãos assimétricos, larguras variadas.
+      // Há UMA plataforma de troca a meio (y:340) para quem quiser mudar de caminho.
+      // O jogador escolhe a sua identidade — e aguenta as consequências!
       platforms:[
-        {x:120,y:520,w:380,h:28},
+        {x:120,y:520,w:380,h:28},           // base arranque
 
-        // Percurso CIMA (y≈220-260)
-        {x:700,y:240,w:160,h:22},
-        {x:960,y:220,w:150,h:22},
-        {x:1210,y:250,w:150,h:22},
-        {x:1470,y:220,w:150,h:22},
-        {x:1730,y:240,w:150,h:22},
-        {x:1990,y:220,w:150,h:22},
-        {x:2250,y:240,w:150,h:22},
-        {x:2510,y:220,w:150,h:22},
-        {x:2770,y:240,w:160,h:22},
+        // ── PERCURSO CIMA — montanha-russa ──────────────────────────────
+        {x:640,y:300,w:170,h:22},           // entrada — altura média (não começa no topo)
+        {x:870,y:190,w:130,h:22},           // PICO 1 — curto, difícil de aterrar
+        {x:1060,y:310,w:200,h:22},          // vale largo — respiro
+        {x:1340,y:170,w:120,h:22},          // PICO 2 — ainda mais alto, mais estreito
+        {x:1540,y:280,w:160,h:22},          // descida intermédia
+        {x:1770,y:200,w:140,h:22},          // PICO 3 — mas vão menor antes dele
+        {x:1980,y:330,w:190,h:22},          // vale longo — duplo salto vai bem aqui
+        {x:2240,y:210,w:130,h:22},          // pico rápido — atenção ao vilão!
+        {x:2440,y:290,w:170,h:22},          // descida suave
+        {x:2700,y:220,w:150,h:22},          // último pico — guarda o duplo salto
+        {x:2940,y:310,w:180,h:22},          // rampa final cima
 
-        // Percurso BAIXO (y≈400-440)
-        {x:700,y:420,w:160,h:22},
-        {x:960,y:440,w:150,h:22},
-        {x:1210,y:410,w:150,h:22},
-        {x:1470,y:440,w:150,h:22},
-        {x:1730,y:410,w:150,h:22},
-        {x:1990,y:440,w:150,h:22},
-        {x:2250,y:410,w:150,h:22},
-        {x:2510,y:440,w:150,h:22},
-        {x:2770,y:420,w:160,h:22},
+        // ── PLATAFORMA DE TROCA (a meio do nível) ───────────────────────
+        // Quem está em cima pode descer; quem está em baixo pode subir.
+        {x:1640,y:340,w:120,h:18},          // pequena — só quem é preciso a usa
 
-        {x:3180,y:520,w:700,h:28},
+        // ── PERCURSO BAIXO — ritmo sincopado ────────────────────────────
+        {x:640,y:450,w:220,h:22},           // largo — fácil entrar no percurso baixo
+        {x:940,y:410,w:110,h:22},           // estreito — primeiro teste
+        {x:1110,y:460,w:180,h:22},          // desce um pouco — surpresa
+        {x:1370,y:430,w:130,h:22},          // retoma — vão assimétrico (260px depois do anterior)
+        {x:1560,y:390,w:160,h:22},          // sobe ligeiramente — perto da troca
+        {x:1800,y:450,w:100,h:22},          // ESTREITO — o mais perigoso do percurso baixo
+        {x:1970,y:415,w:200,h:22},          // largo de recuperação
+        {x:2250,y:440,w:120,h:22},
+        {x:2440,y:400,w:190,h:22},          // largo — espaço para apanhar o heart
+        {x:2720,y:445,w:140,h:22},
+        {x:2950,y:420,w:160,h:22},          // rampa final baixo
+
+        // ── CHEGADA ──────────────────────────────────────────────────────
+        {x:3200,y:520,w:700,h:28},
       ],
       items:[
-        // Percurso cima — melhores itens
-        {x:960,y:170,kind:"estrela"},
-        {x:1470,y:170,kind:"medalha"},
-        {x:2510,y:170,kind:"duplosalto"},
-        // Percurso baixo — itens acessíveis
-        {x:960,y:390,kind:"balao"},
-        {x:1730,y:360,kind:"brinquedo"},
-        {x:2510,y:390,kind:"heart"},
+        // Percurso CIMA — recompensa o risco
+        {x:870,y:140,kind:"estrela"},        // topo do pico 1 — bem lá cima
+        {x:1340,y:120,kind:"medalha"},       // pico 2 — o mais alto de todos
+        {x:2700,y:170,kind:"duplosalto"},    // último pico — prémio para quem chegou
+        {x:1980,y:280,kind:"chupa"},         // no vale longo — consolo
+        // Percurso BAIXO — acessível mas menos glorioso
+        {x:940,y:360,kind:"balao"},
+        {x:1800,y:400,kind:"heart"},         // coração na plataforma mais estreita
+        {x:2440,y:350,kind:"brinquedo"},
+        {x:1640,y:290,kind:"escudo"},        // item especial na plataforma de troca!
       ],
       malwares:[
-        // Alternados nos dois percursos
-        {x:700,y:212,vx:100,pattern:"patrol"},
-        {x:700,y:392,vx:100,pattern:"mini"},
-        {x:1210,y:222,vx:0,pattern:"mini"},
-        {x:1210,y:382,vx:0,pattern:"patrol"},
-        {x:1990,y:192,vx:110,pattern:"jumper"},
-        {x:1990,y:412,vx:-110,pattern:"patrol"},
-        {x:2770,y:212,vx:0,pattern:"jumper"},
-        {x:2770,y:392,vx:0,pattern:"mini"},
+        // Percurso CIMA
+        {x:870,y:162,vx:0,pattern:"jumper"},      // guarda o pico 1
+        {x:1060,y:282,vx:120,pattern:"patrol"},   // patrulha o vale largo
+        {x:1770,y:172,vx:0,pattern:"jumper"},     // pico 3 — jumper surpresa
+        {x:2240,y:182,vx:0,pattern:"mini"},       // pico rápido — mini (mas avisa)
+        // Percurso BAIXO
+        {x:640,y:422,vx:90,pattern:"patrol"},     // patrulha a plataforma larga de entrada
+        {x:1370,y:402,vx:0,pattern:"mini"},       // guarda a plataforma estreita
+        {x:1970,y:387,vx:-100,pattern:"patrol"},  // patrulha o largo de recuperação
+        {x:2720,y:417,vx:0,pattern:"jumper"},     // jumper no final do percurso baixo
       ],
-      secrets:[{x:3030,y:300,kind:"estrela",points:30}],
+      trampolines:[
+        {x:540,y:510},   // ao lado do spawn — ajuda a entrar no percurso cima diretamente
+      ],
+      secrets:[{x:1640,y:288,kind:"estrela",points:30}],
     },
     {
       name: "Nível 12 — O Direito à Família",
