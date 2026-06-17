@@ -1622,7 +1622,53 @@ window.addEventListener("DOMContentLoaded", () => {
 
   function preload() {
     // Carregar a PNG original do VanBerto's para usar como sprite de jogo
-    this.load.image("vanberto_png", "vanberto_voar.png");
+    this.load.image("vanberto_png_raw", "vanberto_voar.png");
+  }
+
+  // Remove fundo preto/escuro da PNG e cria textura limpa com transparência
+  function processVanbertoTexture(scene) {
+    if (!scene.textures.exists("vanberto_png_raw")) return;
+    if (scene.textures.exists("vanberto_png")) return;
+
+    const src = scene.textures.get("vanberto_png_raw").getSourceImage();
+    const w = src.width, h = src.height;
+
+    // Criar canvas auxiliar para manipular píxeis
+    const tmpCanvas = document.createElement("canvas");
+    tmpCanvas.width = w; tmpCanvas.height = h;
+    const tmpCtx = tmpCanvas.getContext("2d");
+    tmpCtx.drawImage(src, 0, 0);
+
+    const imageData = tmpCtx.getImageData(0, 0, w, h);
+    const data = imageData.data;
+
+    // Remover píxeis escuros/pretos (fundo): se R+G+B < 90 e não há cor viva → transparente
+    // Também remover cinzentos escuros que são claramente fundo
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i], g = data[i+1], b = data[i+2];
+      const brightness = r + g + b;
+      // Fundo preto puro ou muito escuro
+      if (brightness < 80) {
+        data[i+3] = 0; // alpha = 0 (transparente)
+        continue;
+      }
+      // Cinzento escuro sem cor dominante (fundo sombra do preto)
+      const maxC = Math.max(r, g, b), minC = Math.min(r, g, b);
+      const saturation = maxC > 0 ? (maxC - minC) / maxC : 0;
+      if (brightness < 120 && saturation < 0.25) {
+        data[i+3] = 0;
+        continue;
+      }
+      // Suavizar bordas: píxeis escuros perto do limiar ficam semi-transparentes
+      if (brightness < 160 && saturation < 0.15) {
+        data[i+3] = Math.floor(data[i+3] * ((brightness - 80) / 80));
+      }
+    }
+
+    tmpCtx.putImageData(imageData, 0, 0);
+
+    // Registar a nova textura limpa no Phaser
+    scene.textures.addCanvas("vanberto_png", tmpCanvas);
   }
 
   function initPhaser() {
@@ -1639,6 +1685,7 @@ window.addEventListener("DOMContentLoaded", () => {
     this.physics.world.setBounds(0, 0, 2600, 514);
     this.cameras.main.setBounds(0, 0, 2600, 540);
 
+    processVanbertoTexture(this);
     makeTextures(this);
     initBackground(this);
 
@@ -1683,13 +1730,18 @@ window.addEventListener("DOMContentLoaded", () => {
     // senão cair no Canvas gerado como fallback
     const vanKey = this.textures.exists("vanberto_png") ? "vanberto_png" : "vanberto_open";
     player = this.physics.add.sprite(480, 460, vanKey);
-    // Redimensionar a PNG para 72×72 no jogo (tamanho visual idêntico ao Canvas anterior)
+    // Redimensionar a PNG para 80×80 no jogo — ligeiramente maior para a imagem original ser bem visível
     if (vanKey === "vanberto_png") {
-      player.setDisplaySize(72, 72);
-      player.body.setSize(44, 52);
+      player.setDisplaySize(80, 80);
+      // Hitbox centrada, um pouco mais estreita que o visual (margem de 10px por lado)
+      // O robô na PNG ocupa ~70% da largura — ajustar offset dinamicamente
+      const pw = player.width, ph = player.height;
+      const bw = Math.round(pw * 0.40); // ~40% da largura original como hitbox
+      const bh = Math.round(ph * 0.55); // ~55% da altura original
+      player.body.setSize(bw, bh);
       player.body.setOffset(
-        (player.width  - 44) / 2,
-        (player.height - 52) / 2 + 4
+        Math.round((pw - bw) / 2),
+        Math.round((ph - bh) / 2) + Math.round(ph * 0.05)
       );
     } else {
       player.setCollideWorldBounds(true);
@@ -2977,7 +3029,7 @@ window.addEventListener("DOMContentLoaded", () => {
     player.setAlpha(0); player.setAngle(0); player.setFlipX(false); player.setOrigin(0.5,0.5); player.setDepth(3);
     // PNG mode: preservar displaySize; Canvas mode: usar setScale
     if(player.getData("usingPng")){
-      player.setDisplaySize(72 * 0.6, 72 * 1.3); // começa pequeno e achatado (pop de entrada)
+      player.setDisplaySize(80 * 0.6, 80 * 1.3); // começa pequeno e achatado (pop de entrada)
     } else {
       player.setScale(0.6);
     }
@@ -2995,8 +3047,8 @@ window.addEventListener("DOMContentLoaded", () => {
         scene.tweens.add({
           targets: player,
           alpha: { from: 0, to: 1 },
-          displayWidth:  { from: 72*0.6, to: 72 },
-          displayHeight: { from: 72*1.3, to: 72 },
+          displayWidth:  { from: 80*0.6, to: 80 },
+          displayHeight: { from: 80*1.3, to: 80 },
           duration: 320, ease: "Back.easeOut",
           onComplete: () => {
             if (sceneRef && !sceneRef.physics.world.isPaused) player.setVelocityY(-160);
@@ -4063,8 +4115,8 @@ window.addEventListener("DOMContentLoaded", () => {
     if(player.getData("usingPng")){
       // PNG mode: animar com squash/stretch e bob vertical
       const baseScale = powered ? 1.18 : 1.0;
-      const displayW = 72 * baseScale;
-      const displayH = 72 * baseScale;
+      const displayW = 80 * baseScale;
+      const displayH = 80 * baseScale;
       if(onGround && moving){
         // Bob de andar — passo alternado a cada 140ms com squash/stretch suave
         const step = Math.floor(scene.time.now / 140) % 4;
